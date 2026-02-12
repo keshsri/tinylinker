@@ -1,0 +1,45 @@
+name: Deploy to AWS
+
+on: 
+    workflow_dispatch:
+
+env:
+    AWS_REGION: 'us-west-2'
+    NODE_VERSION: '18'
+
+jobs:
+    deploy:
+        name: Deploy CDK Stack
+        runs-on: ubuntu-latest
+        
+        permissions:
+            id-token: write
+            contents: read
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Setup NodeJs
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{env.NODE_VERSION}}
+                cache: 'npm'
+                cache-dependency-path: infra/cdk/package-lock.json
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with: 
+                role-to-assume: ${{secrets.AWS_ROLE_ARN}}
+                aws-region: ${{env.AWS_REGION}}
+
+            - name: Install CDK Dependencies
+              working-directory: infra/cdk
+              run: npm install
+
+            - name: CDK Deploy
+              working-directory: infra/cdk
+              run: |
+                npm install -g aws-cdk
+                cdk deploy --require-approval never
+            
