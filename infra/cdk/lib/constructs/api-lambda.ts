@@ -27,6 +27,7 @@ export class ApiLambda extends Construct {
                 ANALYTICS_TABLE_NAME: props.analyticsTable.tableName,
                 RATE_LIMITS_TABLE_NAME: props.rateLimitsTable.tableName,
                 BASE_URL: 'https://tinylinker.ly',
+                API_GATEWAY_STAGE: 'dev',
             },
         });
 
