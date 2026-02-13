@@ -17,25 +17,31 @@ export class ApiGateway extends Construct {
             description: 'URL shortener with analytics',
             deployOptions: {
                 stageName: 'dev',
+                throttlingRateLimit: 50,      // Requests per second
+                throttlingBurstLimit: 100,     // Burst capacity
             },
             defaultCorsPreflightOptions: {
                 allowOrigins: apigateway.Cors.ALL_ORIGINS,
                 allowMethods: apigateway.Cors.ALL_METHODS,
-            }, 
+                allowHeaders: [
+                    'Content-Type',
+                    'X-Amz-Date',
+                    'Authorization',
+                    'X-Api-Key',
+                    'X-Amz-Security-Token',
+                    'X-Amz-User-Agent',
+                ],
+                allowCredentials: true,
+            },
         });
 
-        const integration = new apigateway.LambdaIntegration(props.handler);
+        const integration = new apigateway.LambdaIntegration(props.handler, {
+            proxy: true,
+        });
 
-        const proxy = this.api.root.addProxy({
+        this.api.root.addProxy({
             defaultIntegration: integration,
             anyMethod: true,
         });
-
-        const shorten = this.api.root.addResource('shorten');
-        shorten.addMethod('POST', integration);
-
-        const analytics = this.api.root.addResource('analytics');
-        const analyticsShortCode = analytics.addResource('{shortCode}');
-        analyticsShortCode.addMethod('GET', integration);
     }
 }
