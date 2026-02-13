@@ -18,9 +18,5 @@ app = FastAPI(
 
 app.include_router(urls.router)
 
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
-
 # Lambda handler
 handler = Mangum(app, lifespan="off")

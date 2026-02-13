@@ -6,6 +6,11 @@ from app.utils.logger import logger
 
 router = APIRouter()
 
+@router.get("/health")
+def health():
+    """Health check endpoint."""
+    return {"status": "healthy"}
+
 @router.post("/shorten", response_model=CreateShortUrlResponse, status_code=201)
 async def shorten_url(request:CreateShortUrlRequest):
     try:
