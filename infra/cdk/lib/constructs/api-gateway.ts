@@ -26,11 +26,13 @@ export class ApiGateway extends Construct {
 
         const integration = new apigateway.LambdaIntegration(props.handler);
 
+        const proxy = this.api.root.addProxy({
+            defaultIntegration: integration,
+            anyMethod: true,
+        });
+
         const shorten = this.api.root.addResource('shorten');
         shorten.addMethod('POST', integration);
-
-        const shortCode = this.api.root.addResource('{shortCode}');
-        shortCode.addMethod('GET', integration);
 
         const analytics = this.api.root.addResource('analytics');
         const analyticsShortCode = analytics.addResource('{shortCode}');
