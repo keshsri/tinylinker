@@ -8,6 +8,7 @@ export interface ApiLambdaProps {
     urlsTable: dynamodb.Table;
     analyticsTable: dynamodb.Table;
     rateLimitsTable: dynamodb.Table;
+    baseUrl: string;
 }
 
 export class ApiLambda extends Construct {
@@ -26,7 +27,7 @@ export class ApiLambda extends Construct {
                 URLS_TABLE_NAME: props.urlsTable.tableName,
                 ANALYTICS_TABLE_NAME: props.analyticsTable.tableName,
                 RATE_LIMITS_TABLE_NAME: props.rateLimitsTable.tableName,
-                BASE_URL: 'https://tinylinker.ly',
+                BASE_URL: props.baseUrl,
                 API_GATEWAY_STAGE: 'dev',
             },
         });

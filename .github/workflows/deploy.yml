@@ -44,5 +44,5 @@ jobs:
               working-directory: infra/cdk
               run: |
                 npm install -g aws-cdk
-                cdk deploy --require-approval never
+                cdk deploy --require-approval never --context domainName=${{ secrets.DOMAIN_NAME }}
             
