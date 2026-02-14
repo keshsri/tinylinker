@@ -11,9 +11,10 @@ from app.utils.logger import logger
 from boto3.dynamodb.conditions import Key
 
 async def get_geolocation(ip: str) -> Dict[str, str]:
-    logger.info(f"Getting geolocation for IP: {ip}")
+    ip_hash = hash_ip(ip)
+    logger.info(f"Getting geolocation for IP hash: {ip_hash[:16]}...")
     if ip.startswith(('127.', '10.', '172.', '192.168.', '::1', 'localhost')):
-        logger.info(f"Private/local IP detected: {ip}")
+        logger.info(f"Private/local IP detected: {ip_hash[:16]}...")
         return {
             "country": "Unknown",
             "region": "Unknown",
@@ -29,7 +30,7 @@ async def get_geolocation(ip: str) -> Dict[str, str]:
                 data = response.json()
                 logger.info(f"API response data: {data}")
                 if data.get("status") == "success":
-                    logger.info(f"Geolocation retrieved successfully for: {ip}")
+                    logger.info(f"Geolocation retrieved successfully for: {ip_hash[:16]}...")
                     return {
                         "country": data.get("country", "Unknown"),
                         "region": data.get("regionName", "Unknown"),
@@ -38,9 +39,9 @@ async def get_geolocation(ip: str) -> Dict[str, str]:
                 else:
                     logger.warning(f"API returned non-success status: {data.get('status')} - {data.get('message', 'No message')}")
     except Exception as e:
-        logger.error(f"Error getting geolocation for {ip}: {e}")
+        logger.error(f"Error getting geolocation for {ip_hash[:16]}...: {e}")
 
-    logger.warning(f"Returning unknown geolocation for: {ip}")
+    logger.warning(f"Returning unknown geolocation for: {ip_hash[:16]}...")
     return {
         "country": "Unknown",
         "region": "Unknown",
@@ -51,7 +52,8 @@ async def track_click(short_code: str, request: Request) -> bool:
     logger.info(f"Tracking click for short code: {short_code}")
     try:
         ip = request.client.host if request.client else "unknown"
-        logger.info(f"Client IP: {ip}")
+        ip_hash = hash_ip(ip)
+        logger.info(f"Client IP hash: {ip_hash[:16]}...")
 
         geo = await get_geolocation(ip)
 
