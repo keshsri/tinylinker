@@ -22,11 +22,12 @@ async def get_geolocation(ip: str) -> Dict[str, str]:
 
     try:
         async with httpx.AsyncClient(timeout=2.0) as client:
-            response = await client.get(f"https://ip-api.com/json/{ip}")
-            logger.info(f"IP geolocation API called for: {ip}")
+            response = await client.get(f"http://ip-api.com/json/{ip}")
+            logger.info(f"IP geolocation API response status: {response.status_code}")
 
             if response.status_code == 200:
                 data = response.json()
+                logger.info(f"API response data: {data}")
                 if data.get("status") == "success":
                     logger.info(f"Geolocation retrieved successfully for: {ip}")
                     return {
@@ -34,6 +35,8 @@ async def get_geolocation(ip: str) -> Dict[str, str]:
                         "region": data.get("regionName", "Unknown"),
                         "city": data.get("city", "Unknown")
                     }
+                else:
+                    logger.warning(f"API returned non-success status: {data.get('status')} - {data.get('message', 'No message')}")
     except Exception as e:
         logger.error(f"Error getting geolocation for {ip}: {e}")
 
