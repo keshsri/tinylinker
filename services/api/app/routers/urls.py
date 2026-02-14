@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from app.models.requests import CreateShortUrlRequest
 from app.models.responses import CreateShortUrlResponse
 from app.services.url_service import create_short_url, get_url_by_code
+from app.services.analytics_service import track_click, increment_click_counter
 from app.utils.logger import logger
 
 router = APIRouter()
@@ -48,12 +49,16 @@ async def preview_url(short_code: str):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/{short_code}", include_in_schema=False)
-async def redirect_url(short_code: str):
+async def redirect_url(short_code: str, request: Request):
     try:
         url_data = await get_url_by_code(short_code)
 
         if not url_data:
             raise HTTPException(status_code=404, detail="Short URL not found")
+
+        await track_click(short_code, request)
+
+        await increment_click_counter(short_code)
 
         return RedirectResponse(url=url_data.originalUrl, status_code=307)
     except HTTPException:
