@@ -39,7 +39,6 @@ async def create_short_url(request: CreateShortUrlRequest, user_id: str = "anony
         isSafe=True
     )
 
-    # Save to DynamoDB
     success = put_item(URLS_TABLE, url_item.model_dump())
     if not success:
         raise Exception("Failed to create short URL")

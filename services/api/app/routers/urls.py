@@ -24,7 +24,30 @@ async def shorten_url(request:CreateShortUrlRequest):
         logger.error(f"Error creating short URL: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.get("/{short_code}")
+@router.get("/preview/{short_code}")
+async def preview_url(short_code: str):
+    try:
+        url_data = await get_url_by_code(short_code)
+
+        if not url_data:
+            raise HTTPException(status_code=404, detail="Short URL not found")
+
+        return {
+            "shortCode": short_code,
+            "originalUrl": url_data.originalUrl,
+            "clickCount": url_data.clickCount,
+            "createdAt": url_data.createdAt,
+            "expiresAt": url_data.expiresAt,
+            "customAlias": url_data.customAlias,
+            "isSafe": url_data.isSafe
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting URL: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+@router.get("/{short_code}", include_in_schema=False)
 async def redirect_url(short_code: str):
     try:
         url_data = await get_url_by_code(short_code)
