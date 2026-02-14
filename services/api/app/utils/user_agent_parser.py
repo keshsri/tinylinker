@@ -1,11 +1,14 @@
 from typing import Dict
+from app.utils.logger import logger
 
 def parse_user_agent(user_agent: str) -> Dict[str, str]:
+    logger.info("Parsing user agent string")
     ua_lower = user_agent.lower()
     device = detect_device(ua_lower)
     browser = detect_browser(ua_lower)
     os = detect_os(ua_lower)
 
+    logger.info(f"User agent parsed: {device}, {browser}, {os}")
     return {
         'device': device,
         'browser': browser,

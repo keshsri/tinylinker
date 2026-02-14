@@ -21,5 +21,4 @@ app.add_middleware(
 
 app.include_router(urls.router)
 
-# Lambda handler
 handler = Mangum(app, lifespan="off")
